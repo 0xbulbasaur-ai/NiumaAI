@@ -62,6 +62,7 @@ That is the environment where the watchdog, tray controls, and resume flow have 
 NiumaAI is a good fit if you want:
 
 - longer-running AI coding or content-generation sessions
+- a session that is intentionally supposed to keep working unattended for a while
 - a local agent workflow that keeps moving in the background
 - a quiet resume path that does not keep flashing terminal windows
 - tray-based monitoring and manual takeover on Windows
@@ -154,6 +155,7 @@ powershell -ExecutionPolicy Bypass -File "$env:USERPROFILE\.codex\scripts\setup_
 - practically validated on Codex + Windows today
 - built around the pinned-session or pinned-thread model
 - helper scripts currently assume a local Codex install and its CLI layout
+- not meant for short-lived sessions that do not actually need continuous background progress
 
 ## 中文
 
@@ -210,6 +212,7 @@ NiumaAI 处理的就是这类运行层问题。
 如果你想要下面这些能力，这个项目就比较对路：
 
 - 让 AI coding session 或长流程任务尽量持续推进
+- 你本来就有需要持续工作一段时间、适合后台挂着跑的 session
 - 让本地 agent 在后台继续工作
 - 用更安静的方式处理中断恢复，不反复打扰前台
 - 在 Windows 上通过托盘看状态和接管当前 session
@@ -302,6 +305,7 @@ powershell -ExecutionPolicy Bypass -File "$env:USERPROFILE\.codex\scripts\setup_
 - 目前真正实测通过的是 Codex + Windows
 - 设计建立在 pinned session 或 pinned thread 模型之上
 - 现有辅助脚本默认围绕本地 Codex 安装和 CLI 路径展开
+- 不适合本来就不需要持续推进的短任务或一次性 session
 
 ## License
 
