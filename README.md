@@ -67,6 +67,15 @@ NiumaAI is a good fit if you want:
 - a quiet resume path that does not keep flashing terminal windows
 - tray-based monitoring and manual takeover on Windows
 
+### Who Should Not Use It
+
+NiumaAI is probably not the right tool if:
+
+- your sessions are short and do not need continuous background progress
+- you do not use pinned sessions or pinned threads as part of your workflow
+- you want a fully cross-platform tool with the same setup quality everywhere today
+- you mainly need model orchestration rather than local runtime reliability
+
 ### Porting To Other Environments
 
 The current proven path is Codex on Windows, but the design is intentionally small and direct.
@@ -216,6 +225,15 @@ NiumaAI 处理的就是这类运行层问题。
 - 让本地 agent 在后台继续工作
 - 用更安静的方式处理中断恢复，不反复打扰前台
 - 在 Windows 上通过托盘看状态和接管当前 session
+
+### 不适合什么场景
+
+如果你的情况更接近下面这些，这个项目大概率就不适合：
+
+- 你的 session 本来就很短，不需要持续后台推进
+- 你的工作流里并不会使用 pinned session 或 pinned thread
+- 你现在就要求它在所有平台上都具备同样成熟的安装体验
+- 你需要的是模型编排能力，而不是本地运行可靠性
 
 ### 迁移到其他环境
 
