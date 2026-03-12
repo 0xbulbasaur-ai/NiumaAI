@@ -241,12 +241,16 @@ def is_codex_process_running() -> bool:
     return False
 
 
-def terminate_process(pid: int | None) -> None:
+def terminate_process(pid: int | None, *, tree: bool = False) -> None:
     if not pid or pid <= 0:
         return
     try:
+        command = ["taskkill", "/F"]
+        if tree:
+            command.append("/T")
+        command.extend(["/PID", str(pid)])
         subprocess.run(
-            ["taskkill", "/F", "/T", "/PID", str(pid)],
+            command,
             check=False,
             capture_output=True,
             text=True,
@@ -900,7 +904,7 @@ class WatchdogService:
         self.monitor_url: str | None = None
         self.state_version = 1
 
-    def _cancel_active_resume(self, reason: str) -> None:
+    def _cancel_active_resume(self, reason: str, *, tree: bool = False) -> None:
         thread_id = self.tracker.snapshot.thread_id
         pids_to_kill: set[int] = set(find_matching_resume_pids(self.cli_path, thread_id))
         pid = None
@@ -917,8 +921,9 @@ class WatchdogService:
         if pid:
             pids_to_kill.add(pid)
         for active_pid in sorted(pids_to_kill):
-            terminate_process(active_pid)
-            log(f"Cancelled active CLI resume pid {active_pid} ({reason}).")
+            terminate_process(active_pid, tree=tree)
+            cancel_mode = "tree" if tree else "exact"
+            log(f"Cancelled active CLI resume pid {active_pid} ({reason}, {cancel_mode}).")
         self.active_cli_pid = None
         self.active_cli_command = []
 
@@ -951,7 +956,7 @@ class WatchdogService:
                 time.sleep(max(1, int(self.config["poll_seconds"])))
         finally:
             self.stop_requested = True
-            self._cancel_active_resume("shutdown")
+            self._cancel_active_resume("shutdown", tree=True)
             if self.icon:
                 try:
                     self.icon.stop()
@@ -1795,7 +1800,7 @@ class WatchdogService:
                     self._notify("Watchdog resumed.")
                     self._refresh_tray_menu()
                 elif command == "stop":
-                    self._cancel_active_resume("stop")
+                    self._cancel_active_resume("stop", tree=True)
                     self.last_action = "stop"
                     log("Received stop command.")
                     self.stop_requested = True
