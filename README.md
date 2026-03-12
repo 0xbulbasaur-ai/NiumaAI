@@ -60,17 +60,6 @@ That pattern is generic enough to be migrated to other AI environments with rela
 - `scripts/`: PowerShell and Python watchdog scripts
 - `examples/`: sample config you can adapt locally
 
-### Privacy And Portability
-
-This public copy removes user-specific absolute paths. Runtime paths resolve from `%USERPROFILE%` or `Path.home()`.
-
-Machine-specific data is intentionally not included:
-
-- live `.codex` state databases
-- local logs and attempt history
-- pinned thread IDs
-- local account details
-
 ### Requirements
 
 - Windows
@@ -192,17 +181,6 @@ NiumaAI 是一个面向长时间运行 AI 工作流的静默 watchdog。
 - `skill/`：skill 定义和 agent 元数据
 - `scripts/`：PowerShell 与 Python 守护脚本
 - `examples/`：可直接改用的示例配置
-
-### 隐私与可移植性
-
-这个公开版已经去掉了用户专属绝对路径，运行时路径统一从 `%USERPROFILE%` 或 `Path.home()` 推导。
-
-刻意不包含以下本机数据：
-
-- live `.codex` 状态库
-- 本地日志和尝试记录
-- pinned thread ID
-- 本地账号细节
 
 ### 依赖要求
 
