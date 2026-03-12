@@ -93,6 +93,8 @@ DEFAULT_CONFIG: dict[str, Any] = {
     "toast_notifications": True,
     "tray_enabled": True,
     "resume_backend": "cli",
+    "sandbox_policy": "danger-full-access",
+    "approval_mode": "never",
     "stop_detection_mode": "task_complete_only",
     "monitor_port": MONITOR_PORT,
 }
@@ -1319,7 +1321,9 @@ class WatchdogService:
             self._notify("No pinned Codex thread is available to open.")
             return
         cli_path = str(self.cli_path or WINDOWS_NPM_NATIVE_CLI)
-        cwd = str(Path(self.target_record.cwd)) if self.target_record and self.target_record.cwd else str(DEFAULT_CWD)
+        cwd = str(self._resume_cwd())
+        sandbox_policy = self._resume_sandbox_policy()
+        approval_mode = self._resume_approval_mode()
         try:
             open_visible_terminal(
                 [
@@ -1328,7 +1332,7 @@ class WatchdogService:
                     "-ExecutionPolicy",
                     "Bypass",
                     "-Command",
-                    f"& '{cli_path}' resume {thread_id} -C '{cwd}' -s danger-full-access -a never --no-alt-screen",
+                    f"& '{cli_path}' resume {thread_id} -C '{cwd}' -s {sandbox_policy} -a {approval_mode} --no-alt-screen",
                 ],
                 cwd=cwd,
                 title="NiumaAI Codex CLI",
@@ -1473,6 +1477,27 @@ class WatchdogService:
     def _record_attempt(self) -> None:
         self.resume_attempts.append(utc_now())
 
+    def _resume_cwd(self) -> Path:
+        if self.target_record and self.target_record.cwd:
+            return Path(self.target_record.cwd)
+        return DEFAULT_CWD
+
+    def _resume_sandbox_policy(self) -> str:
+        configured = str(self.config.get("sandbox_policy") or "").strip()
+        if configured:
+            return configured
+        if self.target_record and self.target_record.sandbox_policy:
+            return self.target_record.sandbox_policy
+        return "danger-full-access"
+
+    def _resume_approval_mode(self) -> str:
+        configured = str(self.config.get("approval_mode") or "").strip()
+        if configured:
+            return configured
+        if self.target_record and self.target_record.approval_mode:
+            return self.target_record.approval_mode
+        return "never"
+
     def _attempt_cli_resume(self, snapshot: ThreadSnapshot) -> None:
         assert self.cli_path is not None
         if not snapshot.thread_id:
@@ -1487,14 +1512,15 @@ class WatchdogService:
         attempt_id = datetime.now().strftime("%Y%m%d-%H%M%S") + "-" + uuid.uuid4().hex[:8]
         stdout_path = ATTEMPT_DIR / f"{attempt_id}.stdout.log"
         stderr_path = ATTEMPT_DIR / f"{attempt_id}.stderr.log"
+        resume_cwd = self._resume_cwd()
         command = [
             str(self.cli_path),
             "-C",
-            str(DEFAULT_CWD),
+            str(resume_cwd),
             "-a",
-            "never",
+            self._resume_approval_mode(),
             "-s",
-            "danger-full-access",
+            self._resume_sandbox_policy(),
             "exec",
             "resume",
             snapshot.thread_id,
@@ -1510,7 +1536,7 @@ class WatchdogService:
                 command,
                 stdout=stdout_handle,
                 stderr=stderr_handle,
-                cwd=str(DEFAULT_CWD),
+                cwd=str(resume_cwd),
                 creationflags=PROCESS_CREATION_FLAGS,
                 startupinfo=hidden_startupinfo(),
                 close_fds=True,
@@ -1811,9 +1837,13 @@ class WatchdogService:
             "target_thread_id": snapshot.thread_id,
             "target_thread_title": self.target_record.title if self.target_record else None,
             "target_thread_sandbox_policy": self.target_record.sandbox_policy if self.target_record else None,
+            "target_thread_approval_mode": self.target_record.approval_mode if self.target_record else None,
             "target_thread_source": self.target_record.source if self.target_record else None,
             "target_selection_mode": self.config.get("thread_scope"),
             "resume_backend": self.config.get("resume_backend"),
+            "resume_cwd": str(self._resume_cwd()),
+            "resume_sandbox_policy": self._resume_sandbox_policy(),
+            "resume_approval_mode": self._resume_approval_mode(),
             "stop_detection_mode": self.config.get("stop_detection_mode"),
             "armed_thread_id": self.arm_thread_id,
             "armed_at": dt_to_str(self.arm_started_at),

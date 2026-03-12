@@ -35,7 +35,7 @@ The current default behavior is:
 1. target the first pinned thread (`thread_scope = pinned:first`)
 2. poll local state every 2 seconds by default
 3. detect stoppage or an interrupted resumable state
-4. launch a background command equivalent to `codex exec resume <thread_id> continue --json`
+4. launch a background command equivalent to `codex -C <cwd> -a never -s danger-full-access exec resume <thread_id> continue --json`
 5. expose status, pause, resume, monitoring, and manual takeover through scripts and the Windows tray
 
 This is why the project is useful: it is a lightweight wrapper around a real working session, not a separate AI runtime.
@@ -123,6 +123,12 @@ Copy the example config:
 ```powershell
 Copy-Item .\examples\continue-watchdog.example.json "$env:USERPROFILE\.codex\continue-watchdog.json"
 ```
+
+That example config makes the silent CLI defaults explicit:
+
+- `resume_backend = cli`
+- `sandbox_policy = danger-full-access`
+- `approval_mode = never`
 
 If your main workspace is not `%USERPROFILE%\Desktop\Projects`, set:
 

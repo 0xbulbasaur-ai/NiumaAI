@@ -9,5 +9,7 @@
   "toast_notifications": true,
   "tray_enabled": true,
   "resume_backend": "cli",
+  "sandbox_policy": "danger-full-access",
+  "approval_mode": "never",
   "stop_detection_mode": "task_complete_or_idle"
 }

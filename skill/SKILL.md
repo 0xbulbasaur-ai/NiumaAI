@@ -21,7 +21,7 @@ powershell -File "$env:USERPROFILE\.codex\scripts\codex_continue_watchdog.ps1" s
 
 ## Verify & Repair
 
-Run the verification script to check all 9 preconditions:
+Run the verification script to check the silent CLI defaults and all setup preconditions:
 
 ```bash
 python %USERPROFILE%\.codex\scripts\verify_silent_watchdog.py
@@ -76,11 +76,13 @@ node.exe  (direct binary, NOT npx.cmd)
   "toast_notifications": true,
   "tray_enabled": true,
   "resume_backend": "cli",
+  "sandbox_policy": "danger-full-access",
+  "approval_mode": "never",
   "stop_detection_mode": "task_complete_only"
 }
 ```
 
-**Critical**: `resume_backend` MUST be `"cli"`, never `"app-only"`.
+**Critical**: `resume_backend` MUST be `"cli"`, `sandbox_policy` MUST default to `"danger-full-access"`, and `approval_mode` MUST default to `"never"`.
 
 ### `~/.codex/config.toml` (MCP sections)
 
@@ -126,7 +128,8 @@ PROCESS_CREATION_FLAGS = CREATE_NO_WINDOW
 2. **No `DETACHED_PROCESS`** flag on any `subprocess.Popen` or `subprocess.run` call
 3. **All `subprocess.run`** calls that invoke external tools (tasklist, taskkill, powershell) MUST include `creationflags=CREATE_NO_WINDOW` and `startupinfo=hidden_startupinfo()`
 4. **`resume_backend`** must be `"cli"`, not `"app-only"`
-5. **MCP servers** that were previously `npx.cmd` must use `node.exe` + local JS entry
+5. **Auto-resume policy** must default to `danger-full-access` with approval mode `never`
+6. **MCP servers** that were previously `npx.cmd` must use `node.exe` + local JS entry
 
 ## Response pattern
 

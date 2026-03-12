@@ -298,14 +298,28 @@ if (Test-Path $ConfigToml) {
 Write-Host "`n[3/3] Updating continue-watchdog.json..." -ForegroundColor Yellow
 if (Test-Path $WatchdogJson) {
     $wj = Get-Content $WatchdogJson -Raw -Encoding UTF8 | ConvertFrom-Json
+    $changed = $false
     if ($wj.resume_backend -ne "cli") {
         $wj.resume_backend = "cli"
+        Write-Host "  OK: resume_backend changed to cli" -ForegroundColor Green
+        $changed = $true
+    }
+    if ($wj.sandbox_policy -ne "danger-full-access") {
+        $wj | Add-Member -NotePropertyName sandbox_policy -NotePropertyValue "danger-full-access" -Force
+        Write-Host "  OK: sandbox_policy changed to danger-full-access" -ForegroundColor Green
+        $changed = $true
+    }
+    if ($wj.approval_mode -ne "never") {
+        $wj | Add-Member -NotePropertyName approval_mode -NotePropertyValue "never" -Force
+        Write-Host "  OK: approval_mode changed to never" -ForegroundColor Green
+        $changed = $true
+    }
+    if ($changed) {
         $json = $wj | ConvertTo-Json -Depth 5
         $utf8 = [System.Text.UTF8Encoding]::new($false)
         [System.IO.File]::WriteAllText($WatchdogJson, $json, $utf8)
-        Write-Host "  OK: resume_backend changed to cli" -ForegroundColor Green
     } else {
-        Write-Host "  OK: already set to cli" -ForegroundColor Green
+        Write-Host "  OK: continue-watchdog.json already matches the silent CLI defaults" -ForegroundColor Green
     }
 } else {
     Write-Host "  SKIP: continue-watchdog.json not found" -ForegroundColor Yellow

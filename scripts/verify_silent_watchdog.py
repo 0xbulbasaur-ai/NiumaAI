@@ -1,7 +1,7 @@
 """Verify that the silent watchdog setup is correctly configured.
 
 Run: python verify_silent_watchdog.py
-This checks all the conditions that caused the 2026-03-11 failure and reports pass/fail.
+This checks the silent CLI defaults and the conditions that caused the 2026-03-11 failure.
 """
 from __future__ import annotations
 
@@ -72,14 +72,28 @@ def main() -> int:
     else:
         check("codex.exe login status", False, "binary missing")
 
-    # 3. continue-watchdog.json uses cli backend
+    # 3. continue-watchdog.json uses silent CLI defaults
     wj = CODEX_HOME / "continue-watchdog.json"
     if wj.exists():
         cfg = json.loads(wj.read_text(encoding="utf-8"))
         backend = cfg.get("resume_backend", "app-only")
         check("resume_backend == cli", backend == "cli", f"current: {backend}")
+        sandbox_policy = cfg.get("sandbox_policy", "")
+        check(
+            "sandbox_policy == danger-full-access",
+            sandbox_policy == "danger-full-access",
+            f"current: {sandbox_policy or '<missing>'}",
+        )
+        approval_mode = cfg.get("approval_mode", "")
+        check(
+            "approval_mode == never",
+            approval_mode == "never",
+            f"current: {approval_mode or '<missing>'}",
+        )
     else:
         check("resume_backend == cli", False, "config missing")
+        check("sandbox_policy == danger-full-access", False, "config missing")
+        check("approval_mode == never", False, "config missing")
 
     # 4. Service script uses CREATE_NO_WINDOW only (no DETACHED_PROCESS)
     svc = CODEX_HOME / "scripts" / "codex_continue_watchdog_service.py"
