@@ -1,0 +1,13 @@
+{
+  "thread_scope": "pinned:first",
+  "poll_seconds": 2,
+  "idle_stop_seconds": 180,
+  "max_resume_attempts": 5,
+  "resume_window_minutes": 15,
+  "cooldown_minutes": 30,
+  "window_title": "Codex",
+  "toast_notifications": true,
+  "tray_enabled": true,
+  "resume_backend": "cli",
+  "stop_detection_mode": "task_complete_or_idle"
+}

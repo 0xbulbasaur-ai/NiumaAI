@@ -1,0 +1,4 @@
+interface:
+  display_name: "NiumaAI"
+  short_description: "Control, verify, and repair the silent Codex auto-continue watchdog (hidden CLI mode)"
+  default_prompt: "Start, pause, resume, inspect, verify, or stop the local NiumaAI Codex auto-continue watchdog and summarize the resulting status."
